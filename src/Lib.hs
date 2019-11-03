@@ -1,21 +1,10 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib (someFunc) where
 
 newtype ProductCode = ProductCode String deriving (Show)
-
-data OrderQuantity = UnitQuantity Int | KilogramQuantity Double deriving (Show)
-
-printQuantity qt =
-  case qt of
-    UnitQuantity q -> putStrLn $ show q
-    KilogramQuantity q -> putStrLn $ show q
-
-
-
 newtype OrderId = OrderId String deriving (Show)
 newtype OrderLine = OrderLine String deriving (Show)
 
+data OrderQuantity = UnitQuantity Int | KilogramQuantity Double deriving (Show)
 data CardType = Visa | Master deriving (Show)
 
 data CreditCardInfo = CreditCardInfo { 
@@ -23,11 +12,15 @@ data CreditCardInfo = CreditCardInfo {
   cardNumber :: CardType
 } deriving (Show)
 
-
 data Order = Order {
   orderId :: OrderId,
   lines :: [OrderLine]
 }
+
+printQuantity qt =
+  case qt of
+    UnitQuantity q -> putStrLn $ show q
+    KilogramQuantity q -> putStrLn $ show q
 
 printList :: Show a => [a] -> String
 printList list =
@@ -38,7 +31,4 @@ printList list =
     (x:xs) -> "other?? head: " <> show x <> "rest: " <> show xs
 
 someFunc :: IO ()
--- someFunc = putStrLn $ show $ KilogramQuantity 2.4
--- someFunc = printQuantity $ KilogramQuantity 2
-someFunc = putStrLn $ printList [1,2,4] 
-
+someFunc = putStrLn $ show $ KilogramQuantity 2.4
