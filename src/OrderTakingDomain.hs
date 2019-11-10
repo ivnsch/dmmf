@@ -44,12 +44,17 @@ newtype CustomerId = CustomerId Int deriving (Show)
 newtype InvoiceId = InvoiceId Int deriving (Show)
 newtype ContactId = ContactId Int deriving (Show, Eq)
 newtype EmailAddress = EmailAddress String deriving (Show)
+newtype VerifiedEmailAddress = VerifiedEmailAddress String deriving (Show)
 newtype PhoneNumber = PhoneNumber String deriving (Show)
 newtype BillingAmount = BillingAmount Double deriving (Show)
 newtype Price = Price Double deriving (Show)
+newtype UnvalidatedAddress = UnvalidatedAddress String deriving Show
+newtype ValidatedAddress = ValidatedAddress String deriving Show
 
 data ProductCode = WidgetCode String | GizmoCode String deriving (Show)
 data CardType = Visa | Master deriving (Show)
+
+data CustomerEmail = Unverfied EmailAddress | Verified VerifiedEmailAddress deriving Show
 
 data CreditCardInfo = CreditCardInfo { 
   cardType :: CardType,
@@ -66,6 +71,8 @@ data BillingAddress = BillingAddress {
 newtype AcknowledgmentSent = AcknowledgmentSent String
 newtype OrderPlaced = OrderPlaced String
 newtype BillableOrderPlaced = BillableOrderPlaced String
+newtype EmailContactInfo = EmailContactInfo String deriving Show
+newtype PostalContactInfo = PostalContactInfo String deriving Show
 
 data Order = Order {
   orderId :: OrderId,
@@ -79,7 +86,13 @@ data Order = Order {
 data UnvalidatedOrder = UnvalidatedOrder {
   orderId :: String,
   customerInfo :: String,
-  shippingAddress :: String
+  shippingAddress :: UnvalidatedAddress
+}
+
+data ValidatedOrder = ValidatedOrder {
+  orderId :: String,
+  customerInfo :: String,
+  shippingAddress :: ValidatedAddress
 }
 
 data PlaceOrderEvents = PlaceOrderEvents {
@@ -101,10 +114,16 @@ data Invoice = UnpaidInvoice {
   invoiceId :: InvoiceId
 } deriving (Show)
 
+data BothContactMethods = BothContactMethods {
+  email :: EmailContactInfo,
+  address :: PostalContactInfo
+}
+data ContactInfo = EmailOnly EmailContactInfo | AddrOnly PostalContactInfo | EmailAndAddr BothContactMethods
+
 data Contact = Contact {
   contactId :: ContactId,
-  phoneNumber :: PhoneNumber,
-  emailAddress :: EmailAddress
+  name :: String,
+  contactInfo :: ContactInfo
 }
 
 -- instance Eq Contact where
@@ -120,15 +139,41 @@ replaceOrderLine :: NonEmpty OrderLine -> OrderLineId -> OrderLine -> NonEmpty O
 replaceOrderLine orderLines oldId newOrderLine = 
   map (\ol -> if orderLineId ol == oldId then newOrderLine else ol) orderLines
 
+toBillingAmount :: Price -> BillingAmount
+toBillingAmount (Price value) = BillingAmount value
+
+toPriceValue :: Price -> Double
+toPriceValue (Price value) = value
+
+calculateTotalPrice :: NonEmpty OrderLine -> Price
+calculateTotalPrice orderLines = 
+  Price $ foldr (\l a -> toPriceValue (price l) + a) 0 orderLines
+
 changeOrderPrice :: Order -> OrderLineId -> Price -> Maybe Order
 changeOrderPrice order orderLineId newPrice =
   let 
-    orderLine = findOrderLine (lines order) orderLineId
-    
-    newOrderLine = (\ol -> ol { price = newPrice }) <$> orderLine
-    newOrderLines = replaceOrderLine (lines order) orderLineId <$> newOrderLine
+    newOrderLines = updateOrderLinesPrice order orderLineId newPrice
   in 
     (\nols -> order { lines = nols }) <$> newOrderLines
+    
+-- This was added after adding amountToBill to Order. changeOrderPrice is "deprecated" now.
+changeOrderLinePrice :: Order -> OrderLineId -> Price -> Maybe Order
+changeOrderLinePrice order orderLineId newPrice =
+  let 
+    newOrderLines = updateOrderLinesPrice order orderLineId newPrice
+    newTotalPrice = calculateTotalPrice <$> newOrderLines
+    newAmountToBill = BillingAmount . toPriceValue <$> newTotalPrice
+  in 
+    (\nols natb -> order { lines = nols, amountToBill = natb }) <$> newOrderLines <*> newAmountToBill
+
+-- Helper function to fix HLint repeated code warning 
+updateOrderLinesPrice :: Order -> OrderLineId -> Price -> Maybe (NonEmpty OrderLine)
+updateOrderLinesPrice order orderLineId newPrice = 
+  let 
+    orderLine = findOrderLine (lines order) orderLineId
+    newOrderLine = (\ol -> ol { price = newPrice }) <$> orderLine
+  in
+    replaceOrderLine (lines order) orderLineId <$> newOrderLine 
 
 printQuantity qt =
   case qt of
