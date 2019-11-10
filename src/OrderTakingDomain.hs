@@ -6,7 +6,9 @@ module OrderTakingDomain where
 
 import OrderQuantity
 import qualified Data.List as L (find)
-import Prelude hiding (lines)
+import Prelude hiding (lines, map)
+import Data.List.NonEmpty as NEL
+
 -- data Foo = Foo {
 --   myField :: Int
 -- }
@@ -70,7 +72,7 @@ data Order = Order {
   customerId :: CustomerId,
   shippingAddress :: ShippingAddress,
   billingAddress :: BillingAddress,
-  lines :: [OrderLine],
+  lines :: NonEmpty OrderLine,
   amountToBill :: BillingAmount
 }
 
@@ -109,11 +111,11 @@ data Contact = Contact {
 --   x == y = contactId x == contactId y
 -- TODO Hashable?
 
-findOrderLine :: [OrderLine] -> OrderLineId -> Maybe OrderLine
+findOrderLine :: NonEmpty OrderLine -> OrderLineId -> Maybe OrderLine
 findOrderLine orderLines olId =
   L.find (\ol -> (orderLineId ol) == olId) orderLines 
 
-replaceOrderLine :: [OrderLine] -> OrderLineId -> OrderLine -> [OrderLine]
+replaceOrderLine :: NonEmpty OrderLine -> OrderLineId -> OrderLine -> NonEmpty OrderLine
 -- TODO optimize
 replaceOrderLine orderLines oldId newOrderLine = 
   map (\ol -> if ((orderLineId ol) == oldId) then newOrderLine else ol) orderLines
