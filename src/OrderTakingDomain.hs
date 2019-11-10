@@ -113,26 +113,27 @@ data Contact = Contact {
 
 findOrderLine :: NonEmpty OrderLine -> OrderLineId -> Maybe OrderLine
 findOrderLine orderLines olId =
-  L.find (\ol -> (orderLineId ol) == olId) orderLines 
+  L.find (\ol -> orderLineId ol == olId) orderLines 
 
 replaceOrderLine :: NonEmpty OrderLine -> OrderLineId -> OrderLine -> NonEmpty OrderLine
 -- TODO optimize
 replaceOrderLine orderLines oldId newOrderLine = 
-  map (\ol -> if ((orderLineId ol) == oldId) then newOrderLine else ol) orderLines
+  map (\ol -> if orderLineId ol == oldId then newOrderLine else ol) orderLines
 
 changeOrderPrice :: Order -> OrderLineId -> Price -> Maybe Order
 changeOrderPrice order orderLineId newPrice =
   let 
     orderLine = findOrderLine (lines order) orderLineId
+    
     newOrderLine = (\ol -> ol { price = newPrice }) <$> orderLine
-    newOrderLines = (\nol -> replaceOrderLine (lines order) orderLineId nol) <$> newOrderLine
+    newOrderLines = replaceOrderLine (lines order) orderLineId <$> newOrderLine
   in 
     (\nols -> order { lines = nols }) <$> newOrderLines
 
 printQuantity qt =
   case qt of
-    UnitQuantity q -> putStrLn $ show q
-    KilogramQuantity q -> putStrLn $ show q
+    UnitQuantity q -> print q
+    KilogramQuantity q -> print q
 
 printList :: Show a => [a] -> String
 printList list =

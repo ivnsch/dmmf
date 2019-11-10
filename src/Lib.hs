@@ -4,4 +4,4 @@ import OrderQuantity
 import OrderTakingDomain
 
 someFunc :: IO ()
-someFunc = putStrLn $ show $ KilogramQuantity 2.4
+someFunc = print $ KilogramQuantity 2.4
