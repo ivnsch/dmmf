@@ -1,5 +1,6 @@
 module Lib (someFunc) where
 
+import OrderQuantity
 import OrderTakingDomain
 
 someFunc :: IO ()

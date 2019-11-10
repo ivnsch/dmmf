@@ -1,11 +1,12 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 
--- TODO rename in OrderTaking.Domain (and the file too?) - see that there are no warnings
+-- TODO rename in OrderTaking.Domain (file too?)
 module OrderTakingDomain where
 
+import OrderQuantity
 import qualified Data.List as L (find)
-
+import Prelude hiding (lines)
 -- data Foo = Foo {
 --   myField :: Int
 -- }
@@ -46,7 +47,6 @@ newtype BillingAmount = BillingAmount Double deriving (Show)
 newtype Price = Price Double deriving (Show)
 
 data ProductCode = WidgetCode String | GizmoCode String deriving (Show)
-data OrderQuantity = UnitQuantity Int | KilogramQuantity Double deriving (Show)
 data CardType = Visa | Master deriving (Show)
 
 data CreditCardInfo = CreditCardInfo { 
@@ -70,7 +70,7 @@ data Order = Order {
   customerId :: CustomerId,
   shippingAddress :: ShippingAddress,
   billingAddress :: BillingAddress,
-  orderLines :: [OrderLine],
+  lines :: [OrderLine],
   amountToBill :: BillingAmount
 }
 
@@ -121,11 +121,11 @@ replaceOrderLine orderLines oldId newOrderLine =
 changeOrderPrice :: Order -> OrderLineId -> Price -> Maybe Order
 changeOrderPrice order orderLineId newPrice =
   let 
-    orderLine = findOrderLine (orderLines order) orderLineId
+    orderLine = findOrderLine (lines order) orderLineId
     newOrderLine = (\ol -> ol { price = newPrice }) <$> orderLine
-    newOrderLines = (\nol -> replaceOrderLine (orderLines order) orderLineId nol) <$> newOrderLine
+    newOrderLines = (\nol -> replaceOrderLine (lines order) orderLineId nol) <$> newOrderLine
   in 
-    (\nols -> order { orderLines = nols }) <$> newOrderLines
+    (\nols -> order { lines = nols }) <$> newOrderLines
 
 printQuantity qt =
   case qt of
