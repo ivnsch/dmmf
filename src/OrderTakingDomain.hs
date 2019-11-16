@@ -9,10 +9,14 @@ import OrderQuantity
 import qualified Data.List as L
 import Prelude hiding (lines, map)
 import Data.List.NonEmpty as NEL
-import Data.Time
 import qualified PricedOrderLine as POL
 import qualified PricedOrder as PO
+import qualified OrderAcknowledgment
+import qualified OrderAcknowledgmentSent
 import SharedTypes
+import PlaceOrderWorkflow
+import qualified UnvalidatedOrder
+import qualified ValidatedOrder
 
 -- data Foo = Foo {
 --   myField :: Int
@@ -23,14 +27,6 @@ import SharedTypes
 -- myFunc :: Foo -> Int
 -- myFunc foo = (myField :: Foo -> Int) foo -- Ambiguous occurrence "myField"
 
-
-data OrderLine = OrderLine {
-  orderLineId :: OrderLineId,
-  orderId :: OrderId,
-  productId :: ProductId,
-  orderQuantity :: Int
-} deriving (Show)
-
 -- data Foo = Foo {
 --   lines :: [String],
 --   bla :: String
@@ -38,8 +34,6 @@ data OrderLine = OrderLine {
 -- myfunc :: Foo -> [String]
 -- myfunc foo = (L.lines :: Foo -> [String]) foo
 
-orderKey :: OrderLine -> (OrderId, ProductId)
-orderKey orderLine = ((orderId :: OrderLine -> OrderId) orderLine, productId orderLine) :: (OrderId, ProductId)
 
 data CreditCardInfo = CreditCardInfo { 
   cardType :: CardType,
@@ -56,34 +50,6 @@ data CreditCardInfo = CreditCardInfo {
 --   amountToBill :: BillingAmount
 -- }
 
-data Order = Unvalidated UnvalidatedOrder | Validated ValidatedOrder | Priced PO.PricedOrder 
-
-data UnvalidatedOrder = UnvalidatedOrder {
-  orderId :: String,
-  customerInfo :: String,
-  shippingAddress :: UnvalidatedAddress
-}
-
-data ValidatedOrder = ValidatedOrder {
-  orderId :: String,
-  customerInfo :: String,
-  shippingAddress :: ShippingAddress,
-  billingAddress :: BillingAddress,
-  orderLines :: NonEmpty OrderLine
-}
-
-data PlaceOrderEvents = PlaceOrderEvents {
-  acknowledgmentSent :: AcknowledgmentSent,
-  orderPlaced :: OrderPlaced,
-  billableOrderPlaced :: BillableOrderPlaced
-}
-
-data PlaceOrderError = ValidationErrors [ValidationError] | NotDefinedYet
-
-data ValidationError = ValidationError {
-  fieldName :: String,
-  errorDescription :: String
-}
 
 data Invoice = UnpaidInvoice {
   invoiceId :: InvoiceId
@@ -109,13 +75,6 @@ data Contact = Contact {
 --   userId :: CustomerId
 -- }
 
-data Command a = Command {
-  commandData :: a,
-  timeStamp :: UTCTime,
-  userId :: CustomerId
-}
-
-type PlaceOrder = Command UnvalidatedOrder
 
 -- TODO
 -- data OrderTakingCommand = Place PlaceOrder | Change ChangeOrder | Cancel CancelOrder
@@ -124,15 +83,6 @@ type PlaceOrder = Command UnvalidatedOrder
 -- instance Eq Contact where
 --   x == y = contactId x == contactId y
 -- TODO Hashable?
-
-findOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId -> Maybe POL.PricedOrderLine
-findOrderLine orderLines olId =
-  L.find (\ol -> POL.orderLineId ol == olId) orderLines 
-
-replaceOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId -> POL.PricedOrderLine -> NonEmpty POL.PricedOrderLine
--- TODO optimize
-replaceOrderLine orderLines oldId newOrderLine = 
-  map (\ol -> if POL.orderLineId ol == oldId then newOrderLine else ol) orderLines
 
 toBillingAmount :: Price -> BillingAmount
 toBillingAmount (Price value) = BillingAmount value
@@ -143,6 +93,15 @@ toPriceValue (Price value) = value
 calculateTotalPrice :: NonEmpty POL.PricedOrderLine -> Price
 calculateTotalPrice orderLines = 
   Price $ foldr (\l a -> toPriceValue (POL.price l) + a) 0 orderLines
+
+findOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId -> Maybe POL.PricedOrderLine
+findOrderLine orderLines olId =
+  L.find (\ol -> POL.orderLineId ol == olId) orderLines 
+
+replaceOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId -> POL.PricedOrderLine -> NonEmpty POL.PricedOrderLine
+-- TODO optimize
+replaceOrderLine orderLines oldId newOrderLine = 
+  map (\ol -> if POL.orderLineId ol == oldId then newOrderLine else ol) orderLines
 
 changeOrderPrice :: PO.PricedOrder -> OrderLineId -> Price -> Maybe PO.PricedOrder
 changeOrderPrice order orderLineId newPrice =
@@ -169,6 +128,38 @@ updateOrderLinesPrice order orderLineId newPrice =
     newOrderLine = (\ol -> ol { POL.price = newPrice }) <$> orderLine
   in
     replaceOrderLine (PO.orderLines order) orderLineId <$> newOrderLine 
+
+checkProductCodeExists :: ProductCode -> Bool
+checkProductCodeExists productCode = undefined
+
+checkAddressExists :: UnvalidatedAddress -> Bool
+checkAddressExists unvalidatedAddress = undefined
+
+getProductPrice :: ProductCode -> Price
+getProductPrice product = undefined
+
+type CheckProductCodeExists = ProductCode -> Bool
+type CheckAddressExists = UnvalidatedAddress -> Bool
+validateOrder :: CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder.UnvalidatedOrder 
+  -> Either String ValidatedOrder.ValidatedOrder
+validateOrder = undefined
+
+type GetProductPrice = ProductCode -> Price
+priceOrder :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either PricingError PricedOrder
+priceOrder = undefined
+
+-- createOrderAcknowledgmentLetter :: PricedOrder -> HTMLString
+-- createOrderAcknowledgmentLetter = undefined
+
+type CreateOrderAcknowledgmentLetter = PricedOrder -> HTMLString
+
+type SendOrderAcknowledgment = OrderAcknowledgment.OrderAcknowledgment -> SendResult
+
+acknowledgeOrder :: CreateOrderAcknowledgmentLetter -> SendOrderAcknowledgment -> PricedOrder -> 
+  Maybe OrderAcknowledgmentSent.OrderAcknowledgmentSent
+acknowledgeOrder = undefined
+ 
+type CreateEvents = PricedOrder -> [PlaceOrderEvents]
 
 printQuantity qt =
   case qt of
