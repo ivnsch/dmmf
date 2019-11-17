@@ -2,6 +2,7 @@ module Lib (someFunc) where
 
 import OrderQuantity
 import OrderTakingDomain
+import qualified KilogramQuantity
 
 someFunc :: IO ()
-someFunc = print $ KilogramQuantity 2.4
+someFunc = print $ KilogramQuantity.create 2.4

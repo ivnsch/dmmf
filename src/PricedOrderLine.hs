@@ -1,11 +1,16 @@
 module PricedOrderLine where
 
 import SharedTypes
+import OrderId
+import OrderLineId
+import ProductCode
+import Price
+import OrderQuantity
 
 data PricedOrderLine = PricedOrderLine {
   orderLineId :: OrderLineId,
   orderId :: OrderId,
-  productId :: ProductId,
-  orderQuantity :: Int,
+  productCode :: ProductCode,
+  orderQuantity :: OrderQuantity,
   price :: Price
 } deriving (Show)
