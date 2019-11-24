@@ -96,9 +96,9 @@ checkAddressExists unvalidatedAddress = undefined
 toCustomerInfo :: UnvalidatedCustomerInfo.UnvalidatedCustomerInfo -> Either ValidationError CustomerInfo.CustomerInfo
 toCustomerInfo unvalidatedCustomerInfo = 
   let 
-    firstName = string50 $ UnvalidatedCustomerInfo.firstName unvalidatedCustomerInfo
-    lastName = string50 $ UnvalidatedCustomerInfo.lastName unvalidatedCustomerInfo
-    emailAddress = EmailAddress $ UnvalidatedCustomerInfo.emailAddress unvalidatedCustomerInfo
+    firstName = (string50 . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
+    lastName = (string50 . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
+    emailAddress = (EmailAddress . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
     name = PersonalName.PersonalName firstName lastName
   in
     Right $ CustomerInfo.CustomerInfo name emailAddress
@@ -141,12 +141,12 @@ checkProductCodeExists productCode = undefined
 validateOrder :: CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder.UnvalidatedOrder -> Either ValidationError ValidatedOrder.ValidatedOrder
 validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder = 
   let
-    orderId = OrderId.create $ UnvalidatedOrder.orderId unvalidatedOrder 
+    orderId = (OrderId.create . UnvalidatedOrder.orderId) unvalidatedOrder 
     orderIdWithLeftValidationError = left (ValidationError "OrderId") orderId -- TODO compare with repo
-    customerInfo = toCustomerInfo $ UnvalidatedOrder.customerInfo unvalidatedOrder
-    shippingAddress = toAddress checkAddressExists $ UnvalidatedOrder.shippingAddress unvalidatedOrder
-    billingAddress = toAddress checkAddressExists $ UnvalidatedOrder.shippingAddress unvalidatedOrder
-    orderLines = map (toValidatedOrderLine checkProductCodeExists) $ UnvalidatedOrder.orderLines unvalidatedOrder
+    customerInfo = (toCustomerInfo . UnvalidatedOrder.customerInfo) unvalidatedOrder
+    shippingAddress = (toAddress checkAddressExists . UnvalidatedOrder.shippingAddress) unvalidatedOrder
+    billingAddress = (toAddress checkAddressExists . UnvalidatedOrder.shippingAddress) unvalidatedOrder
+    orderLines = (map (toValidatedOrderLine checkProductCodeExists) . UnvalidatedOrder.orderLines) unvalidatedOrder
   in
     ValidatedOrder.ValidatedOrder <$> orderIdWithLeftValidationError <*> customerInfo <*> shippingAddress <*> billingAddress <*> NEE.sequence orderLines
 
@@ -157,9 +157,9 @@ validateOrderAdapted checkProductCodeExists checkAddressExists unvalidatedOrder 
 toValidatedOrderLine :: CheckProductCodeExists -> UnvalidatedOrderLine.UnvalidatedOrderLine -> Either ValidationError OrderLine.OrderLine
 toValidatedOrderLine checkProductCodeExists unvalidatedOrderLine =
   let
-    orderLineId = OrderLineId.create $ UnvalidatedOrderLine.orderLineId unvalidatedOrderLine
-    orderId = OrderId.create $ UnvalidatedOrderLine.orderId unvalidatedOrderLine
-    productCode = toProductCode checkProductCodeExists $ UnvalidatedOrderLine.productCode unvalidatedOrderLine
+    orderLineId = (OrderLineId.create . UnvalidatedOrderLine.orderLineId) unvalidatedOrderLine
+    orderId = (OrderId.create . UnvalidatedOrderLine.orderId) unvalidatedOrderLine
+    productCode = (toProductCode checkProductCodeExists . UnvalidatedOrderLine.productCode) unvalidatedOrderLine
     quantity = toOrderQuantity productCode (UnvalidatedOrderLine.quantity unvalidatedOrderLine)
   in
     left (ValidationError "TODO field name") $ OrderLine.OrderLine <$> orderLineId <*> orderId <*> pure productCode <*> pure quantity -- TODO review pure + ap usage here
@@ -167,8 +167,8 @@ toValidatedOrderLine checkProductCodeExists unvalidatedOrderLine =
 toPricedOrderLine :: GetProductPrice -> OrderLine.OrderLine -> POL.PricedOrderLine
 toPricedOrderLine getProductPrice line =
   let
-    qty = OrderQuantity.value $ OrderLine.quantity line
-    price = getProductPrice $ OrderLine.productCode line
+    qty = (OrderQuantity.value . OrderLine.quantity) line
+    price = (getProductPrice . OrderLine.productCode) line
     linePrice = Price.multiply qty price
   in
     POL.PricedOrderLine 
@@ -188,8 +188,8 @@ getProductPrice product = undefined
 priceOrder :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either PricingError PO.PricedOrder
 priceOrder getProductPrice validatedOrder = 
   let
-    lines = map (toPricedOrderLine getProductPrice) $ ValidatedOrder.orderLines validatedOrder
-    sumPrice = sumPrices $ map POL.price lines
+    lines = (map (toPricedOrderLine getProductPrice) . ValidatedOrder.orderLines) validatedOrder
+    sumPrice = (sumPrices . map POL.price) lines
     amountToBill = BillingAmount.BillingAmount $ case sumPrice of Price value -> value
   in
     Right $ PO.PricedOrder
@@ -222,7 +222,7 @@ placeOrder unvalidatedOrder =
 createBillingEvent :: PO.PricedOrder -> Maybe BillableOrderPlaced
 createBillingEvent placedOrder = 
   let
-    billingAmount = BillingAmount.value $ PO.amountToBill placedOrder
+    billingAmount = (BillingAmount.value . PO.amountToBill) placedOrder
   in
     if billingAmount > 0 then
       Just $ BillableOrderPlaced 
