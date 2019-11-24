@@ -17,7 +17,6 @@ newtype ValidatedAddress = ValidatedAddress String deriving Show
 -- newtype ValidatedOrderLine = ValidatedOrderLine String deriving Show
 
 newtype CheckedAddress = CheckedAddress UnvalidatedAddress deriving Show
-newtype AddressValidationError = AddressValidationError String deriving Show
 
 newtype HTMLString = HTMLString String deriving Show
 
@@ -28,7 +27,6 @@ newtype ZipCode = ZipCode String deriving (Eq, Show)
 newtype EmailContactInfo = EmailContactInfo String deriving Show
 newtype PostalContactInfo = PostalContactInfo String deriving Show
 
-newtype PricingError = PricingError String deriving Show
 
 data CardType = Visa | Master deriving (Show)
 
@@ -51,4 +49,10 @@ data Command a = Command {
 data ValidationError = ValidationError {
   fieldName :: String,
   errorDescription :: String
-}
+} deriving (Eq, Show)
+
+-- data AddressValidationError = InvalidFormat String | AddressNotFound String deriving (Eq, Show)
+newtype PricingError = PricingError String deriving (Eq, Show)
+newtype RemoteServiceError = RemoteServiceError String deriving (Eq, Show)
+-- data PlaceOrderError = ValidationError String | ProductOutOfStock String | RemoteServiceError String deriving (Eq, Show)
+data PlaceOrderError = Validation ValidationError | Pricing PricingError | RemoteService RemoteServiceError deriving (Eq, Show)

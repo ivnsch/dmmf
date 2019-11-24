@@ -1,8 +1,9 @@
 
 module PlaceOrderWorkflow where
 
-import Prelude hiding (lines, map)
-import Data.List.NonEmpty as NEL
+import Prelude hiding (lines, map, sequence)
+import Data.List.NonEmpty as NE
+import qualified NonEmptyExt as NEE
 import SharedTypes
 import qualified ValidatedOrder
 import qualified UnvalidatedOrder
@@ -27,6 +28,7 @@ import qualified UnitQuantity
 import qualified KilogramQuantity
 import qualified PricedOrderLine as POL
 import Price
+import Control.Arrow(left)
 
 type OrderPlaced = PricedOrder.PricedOrder 
 type PlaceOrder = Command UnvalidatedOrder.UnvalidatedOrder
@@ -45,7 +47,6 @@ data PlaceOrderEvents = PlaceOrderEvents {
   billableOrderPlaced :: BillableOrderPlaced
 }
 
-data PlaceOrderError = ValidationErrors [ValidationError] | NotDefinedYet
 
 -- data PlaceOrderResult = PlaceOrderResult {
 --   orderPlaced :: OrderPlaced,
@@ -88,11 +89,11 @@ listOfOpt :: Maybe a -> [a]
 listOfOpt (Just value) = [value]
 listOfOpt Nothing = []
 
-type CheckAddressExists = UnvalidatedAddress -> CheckedAddress.CheckedAddress
+type CheckAddressExists = UnvalidatedAddress -> Either ValidationError CheckedAddress.CheckedAddress
 checkAddressExists :: CheckAddressExists
 checkAddressExists unvalidatedAddress = undefined
 
-toCustomerInfo :: UnvalidatedCustomerInfo.UnvalidatedCustomerInfo -> CustomerInfo.CustomerInfo
+toCustomerInfo :: UnvalidatedCustomerInfo.UnvalidatedCustomerInfo -> Either ValidationError CustomerInfo.CustomerInfo
 toCustomerInfo unvalidatedCustomerInfo = 
   let 
     firstName = string50 $ UnvalidatedCustomerInfo.firstName unvalidatedCustomerInfo
@@ -100,20 +101,20 @@ toCustomerInfo unvalidatedCustomerInfo =
     emailAddress = EmailAddress $ UnvalidatedCustomerInfo.emailAddress unvalidatedCustomerInfo
     name = PersonalName.PersonalName firstName lastName
   in
-    CustomerInfo.CustomerInfo name emailAddress
+    Right $ CustomerInfo.CustomerInfo name emailAddress
 
-toAddress :: CheckAddressExists -> UnvalidatedAddress -> Address.Address
+toAddress :: CheckAddressExists -> UnvalidatedAddress -> Either ValidationError Address.Address
 toAddress checkAddressExists unvalidatedAddress =
   let
     checkedAddress = checkAddressExists unvalidatedAddress
-    addressLine1 = string50 $ CheckedAddress.addressLine1 checkedAddress
-    addressLine2 = string50 $ CheckedAddress.addressLine2 checkedAddress
-    addressLine3 = string50 $ CheckedAddress.addressLine3 checkedAddress
-    addressLine4 = string50 $ CheckedAddress.addressLine4 checkedAddress
-    city = City $ string50 $ CheckedAddress.city checkedAddress
-    zipCode = ZipCode $ CheckedAddress.zipCode checkedAddress
+    addressLine1 = string50 . CheckedAddress.addressLine1 <$> checkedAddress
+    addressLine2 = string50 . CheckedAddress.addressLine2 <$> checkedAddress
+    addressLine3 = string50 . CheckedAddress.addressLine3 <$> checkedAddress
+    addressLine4 = string50 . CheckedAddress.addressLine4 <$> checkedAddress
+    city = City . string50 . CheckedAddress.city <$> checkedAddress
+    zipCode = ZipCode . CheckedAddress.zipCode <$> checkedAddress
   in
-    Address.Address addressLine1 addressLine2 addressLine3 addressLine4 city zipCode
+    Address.Address <$> addressLine1 <*> addressLine2 <*> addressLine3 <*> addressLine4 <*> city <*> zipCode
 
 toProductCode :: CheckProductCodeExists -> String -> ProductCode.ProductCode
 toProductCode checkProductCodeExists str = 
@@ -137,19 +138,23 @@ type CheckProductCodeExists = String -> Bool
 checkProductCodeExists :: CheckProductCodeExists
 checkProductCodeExists productCode = undefined
 
-validateOrder :: CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder.UnvalidatedOrder -> ValidatedOrder.ValidatedOrder
+validateOrder :: CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder.UnvalidatedOrder -> Either ValidationError ValidatedOrder.ValidatedOrder
 validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder = 
   let
     orderId = OrderId.create $ UnvalidatedOrder.orderId unvalidatedOrder 
+    orderIdWithLeftValidationError = left (ValidationError "OrderId") orderId -- TODO compare with repo
     customerInfo = toCustomerInfo $ UnvalidatedOrder.customerInfo unvalidatedOrder
     shippingAddress = toAddress checkAddressExists $ UnvalidatedOrder.shippingAddress unvalidatedOrder
     billingAddress = toAddress checkAddressExists $ UnvalidatedOrder.shippingAddress unvalidatedOrder
     orderLines = map (toValidatedOrderLine checkProductCodeExists) $ UnvalidatedOrder.orderLines unvalidatedOrder
-    validatedOrder = ValidatedOrder.ValidatedOrder orderId customerInfo shippingAddress billingAddress orderLines
   in
-    validatedOrder
+    ValidatedOrder.ValidatedOrder <$> orderIdWithLeftValidationError <*> customerInfo <*> shippingAddress <*> billingAddress <*> NEE.sequence orderLines
 
-type ToValidatedOrderLine = CheckProductCodeExists -> UnvalidatedOrderLine.UnvalidatedOrderLine -> OrderLine.OrderLine
+validateOrderAdapted :: CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder.UnvalidatedOrder -> Either PlaceOrderError ValidatedOrder.ValidatedOrder
+validateOrderAdapted checkProductCodeExists checkAddressExists unvalidatedOrder = 
+  left Validation $ validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+
+toValidatedOrderLine :: CheckProductCodeExists -> UnvalidatedOrderLine.UnvalidatedOrderLine -> Either ValidationError OrderLine.OrderLine
 toValidatedOrderLine checkProductCodeExists unvalidatedOrderLine =
   let
     orderLineId = OrderLineId.create $ UnvalidatedOrderLine.orderLineId unvalidatedOrderLine
@@ -157,7 +162,7 @@ toValidatedOrderLine checkProductCodeExists unvalidatedOrderLine =
     productCode = toProductCode checkProductCodeExists $ UnvalidatedOrderLine.productCode unvalidatedOrderLine
     quantity = toOrderQuantity productCode (UnvalidatedOrderLine.quantity unvalidatedOrderLine)
   in
-    OrderLine.OrderLine orderLineId orderId productCode quantity
+    left (ValidationError "TODO field name") $ OrderLine.OrderLine <$> orderLineId <*> orderId <*> pure productCode <*> pure quantity -- TODO review pure + ap usage here
 
 toPricedOrderLine :: GetProductPrice -> OrderLine.OrderLine -> POL.PricedOrderLine
 toPricedOrderLine getProductPrice line =
@@ -180,14 +185,14 @@ type GetProductPrice = ProductCode.ProductCode -> Price
 getProductPrice :: GetProductPrice
 getProductPrice product = undefined
 
-priceOrder :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> PO.PricedOrder
+priceOrder :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either PricingError PO.PricedOrder
 priceOrder getProductPrice validatedOrder = 
   let
     lines = map (toPricedOrderLine getProductPrice) $ ValidatedOrder.orderLines validatedOrder
     sumPrice = sumPrices $ map POL.price lines
     amountToBill = BillingAmount.BillingAmount $ case sumPrice of Price value -> value
   in
-    PO.PricedOrder
+    Right $ PO.PricedOrder
       (ValidatedOrder.orderId validatedOrder) 
       (ValidatedOrder.customerInfo validatedOrder)
       (ValidatedOrder.shippingAddress validatedOrder)
@@ -195,18 +200,24 @@ priceOrder getProductPrice validatedOrder =
       lines 
       amountToBill
 
-placeOrder :: UnvalidatedOrder.UnvalidatedOrder -> [PlaceOrderEvent]
+priceOrderAdapted :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either PlaceOrderError PO.PricedOrder
+priceOrderAdapted getProductPrice validatedOrder = 
+  left Pricing $ priceOrder getProductPrice validatedOrder
+
+-- TODO computation expressions -> do notation? Go through usages of >>= and see if it's worth replacing with do
+
+placeOrder :: UnvalidatedOrder.UnvalidatedOrder -> Either PlaceOrderError [PlaceOrderEvent]
 placeOrder unvalidatedOrder =
   let
-    validateOrder' = validateOrder checkProductCodeExists checkAddressExists
-    priceOrder' = priceOrder getProductPrice
+    validateOrder' = validateOrderAdapted checkProductCodeExists checkAddressExists
+    priceOrder' = priceOrderAdapted getProductPrice
     acknowledgeOrder' = acknowledgeOrder createAcknowledgmentLetter sendAcknowledgment
 
     validatedOrder = validateOrder' unvalidatedOrder
-    pricedOrder = priceOrder' validatedOrder
-    acknowledmentOption = acknowledgeOrder' pricedOrder
+    pricedOrder = validatedOrder >>= priceOrder'
+    acknowledmentOption = acknowledgeOrder' <$> pricedOrder
   in
-    createEvents pricedOrder acknowledmentOption
+    createEvents <$> pricedOrder <*> acknowledmentOption
 
 createBillingEvent :: PO.PricedOrder -> Maybe BillableOrderPlaced
 createBillingEvent placedOrder = 
@@ -219,4 +230,3 @@ createBillingEvent placedOrder =
         (PO.billingAddress placedOrder)
         (PO.amountToBill placedOrder)
     else Nothing
-
