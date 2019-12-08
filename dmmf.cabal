@@ -1,0 +1,95 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 983ccb7007c057b949c85cdb2675b0a3a4f496672a0fe52cb1f34e8b2d6712d3
+
+name:           dmmf
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/dmmf#readme>
+homepage:       https://github.com/githubuser/dmmf#readme
+bug-reports:    https://github.com/githubuser/dmmf/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/dmmf
+
+library
+  exposed-modules:
+      Lib
+      Types.Payment
+      OrderTakingDomain
+      Types.OrderQuantity
+      Types.PricedOrderLine
+      Types.PricedOrder
+      SharedTypes
+      Types.OrderAcknowledgment
+      Types.OrderAcknowledgmentSent
+      PlaceOrderWorkflow
+      Types.ValidatedOrder
+      Types.UnvalidatedOrder
+      Types.OrderLine
+      Types.OrderId
+      Types.String50
+      Types.UnvalidatedCustomerInfo
+      Types.CustomerInfo
+      Types.PersonalName
+      Types.Address
+      Types.CheckedAddress
+      Types.UnvalidatedOrderLine
+      Types.OrderLineId
+      Types.UnitQuantity
+      Types.KilogramQuantity
+      Types.ProductCode
+      Types.Price
+      Types.BillingAmount
+      NonEmptyExt
+      Types.DTO.OrderLineDto
+      Types.DTO.OrderDto
+  other-modules:
+      Paths_dmmf
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5,
+      time == 1.8.0.2,
+      aeson == 1.4.5.0
+  default-language: Haskell2010
+
+executable dmmf-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_dmmf
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , dmmf
+  default-language: Haskell2010
+
+test-suite dmmf-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_dmmf
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , dmmf
+    , hspec
+    , QuickCheck
+  default-language: Haskell2010
