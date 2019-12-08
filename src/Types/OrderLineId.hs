@@ -1,4 +1,4 @@
-module OrderLineId(
+module Types.OrderLineId(
   OrderLineId, create, value
 ) where
 

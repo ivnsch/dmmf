@@ -1,4 +1,4 @@
-module Price(
+module Types.Price(
   Price(Price), create, multiply
 ) where
 

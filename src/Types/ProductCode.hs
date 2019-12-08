@@ -1,4 +1,4 @@
-module ProductCode(
+module Types.ProductCode(
   ProductCode(Widget, Gizmo), create, value -- exporting data constructors to be able to pattern match
 ) where
 

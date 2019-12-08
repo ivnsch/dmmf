@@ -1,9 +1,9 @@
-module Address(
+module Types.Address(
   Address(Address)
 ) where
   
 import SharedTypes
-import String50
+import Types.String50
 
 data Address = Address {
   addressLine1 :: String50,

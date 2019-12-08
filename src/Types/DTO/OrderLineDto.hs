@@ -1,4 +1,4 @@
-module OrderLineDto where
+module Types.DTO.OrderLineDto where
 
 data OrderLineDto = OrderLineDto {
   orderLineId :: Int,

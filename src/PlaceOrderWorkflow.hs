@@ -5,32 +5,31 @@ import Prelude hiding (lines, map, sequence)
 import Data.List.NonEmpty as NE
 import qualified NonEmptyExt as NEE
 import SharedTypes
-import qualified ValidatedOrder
-import qualified UnvalidatedOrder
-import qualified PricedOrder
-import qualified OrderLine
-import qualified OrderId
-import qualified BillingAmount
-import qualified PricedOrder as PO
-import qualified OrderAcknowledgment
-import qualified OrderAcknowledgmentSent
-import qualified CustomerInfo
-import qualified Address
-import qualified OrderLineId
-import qualified UnvalidatedOrderLine
-import qualified CheckedAddress
-import qualified UnvalidatedCustomerInfo
-import qualified PersonalName
-import String50
-import qualified ProductCode
-import OrderQuantity
-import qualified UnitQuantity
-import qualified KilogramQuantity
-import qualified PricedOrderLine as POL
-import Price
+import qualified Types.ValidatedOrder as ValidatedOrder
+import qualified Types.UnvalidatedOrder as UnvalidatedOrder
+import qualified Types.OrderLine as OrderLine
+import qualified Types.OrderId as OrderId
+import qualified Types.BillingAmount as BillingAmount
+import qualified Types.PricedOrder as PO
+import qualified Types.OrderAcknowledgment as OrderAcknowledgment
+import qualified Types.OrderAcknowledgmentSent as OrderAcknowledgmentSent
+import qualified Types.CustomerInfo as CustomerInfo
+import qualified Types.Address as Address
+import qualified Types.OrderLineId as OrderLineId
+import qualified Types.UnvalidatedOrderLine as UnvalidatedOrderLine
+import qualified Types.CheckedAddress as CheckedAddress
+import qualified Types.UnvalidatedCustomerInfo as UnvalidatedCustomerInfo
+import qualified Types.PersonalName as PersonalName
+import Types.String50
+import qualified Types.ProductCode as ProductCode
+import Types.OrderQuantity as OrderQuantity
+import qualified Types.UnitQuantity as UnitQuantity
+import qualified Types.KilogramQuantity as KilogramQuantity
+import qualified Types.PricedOrderLine as POL
+import Types.Price as Price
 import Control.Arrow(left)
 
-type OrderPlaced = PricedOrder.PricedOrder 
+type OrderPlaced = PO.PricedOrder 
 type PlaceOrder = Command UnvalidatedOrder.UnvalidatedOrder
 
 data BillableOrderPlaced = BillableOrderPlaced {
@@ -39,7 +38,7 @@ data BillableOrderPlaced = BillableOrderPlaced {
   amountToBill :: BillingAmount.BillingAmount
 }
 
-data Order = Unvalidated UnvalidatedOrder.UnvalidatedOrder | Validated ValidatedOrder.ValidatedOrder | Priced PricedOrder.PricedOrder 
+data Order = Unvalidated UnvalidatedOrder.UnvalidatedOrder | Validated ValidatedOrder.ValidatedOrder | Priced PO.PricedOrder 
 
 data PlaceOrderEvents = PlaceOrderEvents {
   acknowledgmentSent :: OrderAcknowledgment.OrderAcknowledgment,

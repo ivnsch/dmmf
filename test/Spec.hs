@@ -2,23 +2,23 @@ import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 import PlaceOrderWorkflow
-import CheckedAddress
+import Types.CheckedAddress
 import qualified Data.List.NonEmpty as NE
-import qualified OrderLineId
-import qualified OrderId
-import qualified ProductCode
-import qualified UnitQuantity
-import qualified OrderQuantity
-import qualified CustomerInfo
-import qualified PersonalName
+import qualified Types.OrderLineId
+import qualified Types.OrderId as OrderId
+import qualified Types.ProductCode as ProductCode
+import qualified Types.UnitQuantity as UnitQuantity
+import qualified Types.OrderQuantity as OrderQuantity
+import qualified Types.CustomerInfo as CustomerInfo
+import qualified Types.PersonalName as PersonalName
 import SharedTypes
-import qualified Address
-import qualified ValidatedOrder
-import UnvalidatedCustomerInfo
-import OrderLine
+import qualified Types.Address as Address
+import qualified Types.ValidatedOrder as ValidatedOrder
+import Types.UnvalidatedCustomerInfo
+import Types.OrderLine
 import UnvalidatedOrder
 import UnvalidatedOrderLine
-import String50
+import Types.String50
 
 main :: IO ()
 main = hspec $

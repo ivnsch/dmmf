@@ -1,4 +1,4 @@
-module KilogramQuantity(
+module Types.KilogramQuantity(
   KilogramQuantity, create, value
 ) where
 

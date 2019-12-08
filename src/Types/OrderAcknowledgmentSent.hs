@@ -1,10 +1,10 @@
-module OrderAcknowledgmentSent where
+module Types.OrderAcknowledgmentSent where
 
 import SharedTypes
-import qualified OrderId
+import Types.OrderId
 
 data OrderAcknowledgmentSent = OrderAcknowledgmentSent {
-  orderId :: OrderId.OrderId,
+  orderId :: OrderId,
   emailAddress :: EmailAddress
 }
  

@@ -1,10 +1,10 @@
-module OrderQuantity(
+module Types.OrderQuantity(
   OrderQuantity(UnitQuantity, KilogramQuantity), 
   value
 ) where
 
-import qualified UnitQuantity
-import qualified KilogramQuantity
+import qualified Types.UnitQuantity as UnitQuantity
+import qualified Types.KilogramQuantity as KilogramQuantity
 
 data OrderQuantity = UnitQuantity UnitQuantity.UnitQuantity | 
   KilogramQuantity KilogramQuantity.KilogramQuantity deriving (Eq, Show)

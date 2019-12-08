@@ -1,5 +1,4 @@
-
-module UnvalidatedCustomerInfo where
+module Types.UnvalidatedCustomerInfo where
 
 data UnvalidatedCustomerInfo = UnvalidatedCustomerInfo {
   firstName :: String,

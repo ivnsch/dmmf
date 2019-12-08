@@ -1,7 +1,7 @@
 module SharedTypes where
 
 import Data.Time
-import String50
+import Types.String50
 
 newtype ProductId = ProductId String deriving (Eq, Show)
 newtype CustomerId = CustomerId Int deriving (Show)

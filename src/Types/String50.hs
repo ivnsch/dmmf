@@ -1,4 +1,4 @@
-module String50(
+module Types.String50(
   String50, string50, value
 ) where
 

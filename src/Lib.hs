@@ -2,12 +2,11 @@
 
 module Lib (someFunc) where
 
-import OrderQuantity
+import Types.OrderQuantity as OrderQuantity
 import OrderTakingDomain
-import qualified KilogramQuantity
+import qualified Types.KilogramQuantity as KilogramQuantity
 import Data.Aeson
-
-import UnvalidatedOrderLine
+import Types.UnvalidatedOrderLine as UnvalidatedOrderLine
 
 someFunc :: IO ()
 someFunc =
@@ -18,5 +17,3 @@ someFunc =
   in
     print newstr
 -- someFunc = print $ KilogramQuantity.create 2.4
-
-

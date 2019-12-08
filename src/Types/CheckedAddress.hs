@@ -1,4 +1,4 @@
-module CheckedAddress where
+module Types.CheckedAddress where
   
 import SharedTypes
 

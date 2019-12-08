@@ -1,4 +1,4 @@
-module BillingAmount(
+module Types.BillingAmount(
   BillingAmount(BillingAmount), create, value
 ) where
 
@@ -9,4 +9,3 @@ create = BillingAmount
 
 value :: BillingAmount -> Double
 value (BillingAmount value) = value
-

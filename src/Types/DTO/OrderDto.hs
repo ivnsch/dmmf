@@ -1,6 +1,6 @@
-module OrderDto where
+module Types.DTO.OrderDto where
 
-import OrderLineDto
+import Types.DTO.OrderLineDto
 
 data OrderDto = OrderDto {
   orderId :: String,

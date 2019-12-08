@@ -1,9 +1,8 @@
-
-module UnvalidatedOrder where
+module Types.UnvalidatedOrder where
 
 import SharedTypes
-import UnvalidatedCustomerInfo
-import UnvalidatedOrderLine
+import Types.UnvalidatedCustomerInfo
+import Types.UnvalidatedOrderLine
 import Data.List.NonEmpty
 
 data UnvalidatedOrder = UnvalidatedOrder {

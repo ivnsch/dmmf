@@ -1,4 +1,4 @@
-module UnitQuantity(
+module Types.UnitQuantity(
   UnitQuantity, create, value
 ) where
 

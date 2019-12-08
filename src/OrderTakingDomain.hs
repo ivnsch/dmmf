@@ -1,38 +1,38 @@
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE DuplicateTypesFields #-}
+{-# LANGUAGE DisambiguateTypesFields #-}
 
 -- TODO rename in OrderTaking.Domain (file too?)
 module OrderTakingDomain where
 
-import OrderQuantity
+import Types.OrderQuantity as OrderQuantity
 -- import qualified Data.List as L (find)
 import qualified Data.List as L
 import Prelude hiding (lines, map)
 import Data.List.NonEmpty as NEL
-import qualified PricedOrderLine as POL
-import qualified PricedOrder as PO
-import qualified OrderAcknowledgment
-import qualified OrderAcknowledgmentSent
+import qualified Types.PricedOrderLine as POL
+import qualified Types.PricedOrder as PO
+import qualified Types.OrderAcknowledgment as OrderAcknowledgment
+import qualified Types.OrderAcknowledgmentSent as OrderAcknowledgmentSent
 import SharedTypes
 import PlaceOrderWorkflow
-import qualified UnvalidatedOrder
-import qualified ValidatedOrder
-import qualified OrderId
-import String50
-import qualified UnvalidatedCustomerInfo
-import qualified CustomerInfo
-import qualified PersonalName
-import qualified CheckedAddress
-import qualified Address
-import qualified UnvalidatedOrderLine
-import qualified OrderLineId
-import qualified OrderLine
-import qualified UnitQuantity
-import qualified KilogramQuantity
-import qualified ProductCode
-import qualified PricedOrderLine
-import Price
-import qualified BillingAmount
+import qualified Types.UnvalidatedOrder as UnvalidatedOrder
+import qualified Types.ValidatedOrder as ValidatedOrder
+import qualified Types.OrderId as OrderId
+import Types.String50
+import qualified Types.UnvalidatedCustomerInfo
+import qualified Types.CustomerInfo as CustomerInfo
+import qualified Types.PersonalName as PersonalName
+import qualified Types.CheckedAddress as CheckedAddress
+import qualified Types.Address as Address
+import qualified Types.UnvalidatedOrderLine
+import qualified Types.OrderLineId as OrderLineId
+import qualified Types.OrderLine as OrderLine
+import qualified Types.UnitQuantity as UnitQuantity
+import qualified Types.KilogramQuantity as KilogramQuantity
+import qualified Types.ProductCode as ProductCode
+import qualified Types.PricedOrderLine
+import Types.Price as Price
+import qualified Types.BillingAmount as BillingAmount
 
 -- data Foo = Foo {
 --   myField :: Int

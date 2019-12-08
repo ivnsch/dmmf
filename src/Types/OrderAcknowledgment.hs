@@ -1,4 +1,4 @@
-module OrderAcknowledgment where
+module Types.OrderAcknowledgment where
 
 import SharedTypes
 

@@ -1,11 +1,11 @@
-module PricedOrderLine where
+module Types.PricedOrderLine where
 
 import SharedTypes
-import OrderId
-import OrderLineId
-import ProductCode
-import Price
-import OrderQuantity
+import Types.OrderId
+import Types.OrderLineId
+import Types.ProductCode
+import Types.Price
+import Types.OrderQuantity
 
 data PricedOrderLine = PricedOrderLine {
   orderLineId :: OrderLineId,

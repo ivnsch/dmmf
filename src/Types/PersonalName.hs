@@ -1,6 +1,6 @@
-module PersonalName where
+module Types.PersonalName where
 
-import String50
+import Types.String50
 
 data PersonalName = PersonalName {
   firstName :: String50,

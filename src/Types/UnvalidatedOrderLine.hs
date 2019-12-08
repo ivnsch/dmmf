@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module UnvalidatedOrderLine where
+module Types.UnvalidatedOrderLine where
 
 import SharedTypes
-import qualified OrderId
-import qualified CustomerInfo
+import qualified Types.OrderId as OrderId
+import qualified Types.CustomerInfo as CustomerInfo
 import Data.Aeson
 import GHC.Generics
 

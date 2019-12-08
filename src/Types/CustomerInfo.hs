@@ -1,10 +1,10 @@
-module CustomerInfo where
+module Types.CustomerInfo where
 
-import String50
+import Types.String50
 import SharedTypes
-import PersonalName
+import Types.PersonalName
 
 data CustomerInfo = CustomerInfo {
-  name :: PersonalName.PersonalName,
+  name :: PersonalName,
   emailAddress :: EmailAddress
 } deriving (Eq, Show)
