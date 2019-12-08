@@ -1,6 +1,3 @@
-{-# LANGUAGE DuplicateTypesFields #-}
-{-# LANGUAGE DisambiguateTypesFields #-}
-
 -- TODO rename in OrderTaking.Domain (file too?)
 module OrderTakingDomain where
 
