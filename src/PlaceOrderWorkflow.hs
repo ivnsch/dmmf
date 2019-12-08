@@ -20,7 +20,7 @@ import qualified Types.UnvalidatedOrderLine as UnvalidatedOrderLine
 import qualified Types.CheckedAddress as CheckedAddress
 import qualified Types.UnvalidatedCustomerInfo as UnvalidatedCustomerInfo
 import qualified Types.PersonalName as PersonalName
-import Types.String50
+import Types.String50 as String50
 import qualified Types.ProductCode as ProductCode
 import Types.OrderQuantity as OrderQuantity
 import qualified Types.UnitQuantity as UnitQuantity
@@ -95,8 +95,8 @@ checkAddressExists unvalidatedAddress = undefined
 toCustomerInfo :: UnvalidatedCustomerInfo.UnvalidatedCustomerInfo -> Either ValidationError CustomerInfo.CustomerInfo
 toCustomerInfo unvalidatedCustomerInfo = 
   let 
-    firstName = (string50 . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
-    lastName = (string50 . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
+    firstName = (String50.create . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
+    lastName = (String50.create . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
     emailAddress = (EmailAddress . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
     name = PersonalName.PersonalName firstName lastName
   in
@@ -106,11 +106,11 @@ toAddress :: CheckAddressExists -> UnvalidatedAddress -> Either ValidationError 
 toAddress checkAddressExists unvalidatedAddress =
   let
     checkedAddress = checkAddressExists unvalidatedAddress
-    addressLine1 = string50 . CheckedAddress.addressLine1 <$> checkedAddress
-    addressLine2 = string50 . CheckedAddress.addressLine2 <$> checkedAddress
-    addressLine3 = string50 . CheckedAddress.addressLine3 <$> checkedAddress
-    addressLine4 = string50 . CheckedAddress.addressLine4 <$> checkedAddress
-    city = City . string50 . CheckedAddress.city <$> checkedAddress
+    addressLine1 = String50.create . CheckedAddress.addressLine1 <$> checkedAddress
+    addressLine2 = String50.createOption . CheckedAddress.addressLine2 <$> checkedAddress
+    addressLine3 = String50.createOption . CheckedAddress.addressLine3 <$> checkedAddress
+    addressLine4 = String50.createOption . CheckedAddress.addressLine4 <$> checkedAddress
+    city = City . String50.create . CheckedAddress.city <$> checkedAddress
     zipCode = ZipCode . CheckedAddress.zipCode <$> checkedAddress
   in
     Address.Address <$> addressLine1 <*> addressLine2 <*> addressLine3 <*> addressLine4 <*> city <*> zipCode
