@@ -2,9 +2,9 @@ import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 import PlaceOrderWorkflow
-import Types.CheckedAddress
+import Types.CheckedAddress as CheckedAddress
 import qualified Data.List.NonEmpty as NE
-import qualified Types.OrderLineId
+import qualified Types.OrderLineId as OrderLineId
 import qualified Types.OrderId as OrderId
 import qualified Types.ProductCode as ProductCode
 import qualified Types.UnitQuantity as UnitQuantity
@@ -15,10 +15,11 @@ import SharedTypes
 import qualified Types.Address as Address
 import qualified Types.ValidatedOrder as ValidatedOrder
 import Types.UnvalidatedCustomerInfo
-import Types.OrderLine
-import UnvalidatedOrder
-import UnvalidatedOrderLine
-import Types.String50
+import Types.OrderLine as OrderLine
+import Types.UnvalidatedOrder
+import Types.UnvalidatedOrderLine
+import Types.String50 as String50
+import Control.Arrow(left)
 
 main :: IO ()
 main = hspec $
@@ -32,21 +33,24 @@ main = hspec $
     let unvalidatedOrderline = UnvalidatedOrderLine orderLineIdStr orderIdStr "1" 1
     let unvalidatedOrderLines = NE.fromList [unvalidatedOrderline]
 
-    let checkAddressExists _ = CheckedAddress.CheckedAddress "a" "a" "a" "a" "a" "1"
+    let checkAddressExists _ = Right $ CheckedAddress.CheckedAddress "a" "a" "a" "a" "a" "1"
     let unvalidatedOrder = UnvalidatedOrder orderIdStr unvalidatedCustomerInfo shippingUnvalidatedAddress unvalidatedOrderLines
 
-    let customerInfo = CustomerInfo.CustomerInfo (PersonalName.PersonalName (String50.string50 "a") (String50.string50 "a")) (EmailAddress "a")
-    let dummyStr = String50.string50 "a" :: String50
-    let shippingAddress = Address.Address dummyStr dummyStr dummyStr dummyStr (City dummyStr) (ZipCode "1")
+    let customerInfo = CustomerInfo.CustomerInfo (PersonalName.PersonalName (String50.create "a") (String50.create "a")) (EmailAddress "a")
+    let dummyStr = String50.create "a" :: String50
+    let shippingAddress = Address.Address dummyStr (Just dummyStr) (Just dummyStr) (Just dummyStr) (City dummyStr) (ZipCode "1")
     let billingAddress = shippingAddress
-    let orderLine = OrderLine orderLineId orderId (ProductCode.Widget "1") (OrderQuantity.UnitQuantity $ UnitQuantity.create 1)
-    let orderLines = NE.fromList [orderLine]
+
+    let orderLine = OrderLine <$> orderLineId <*> orderId <*> pure (ProductCode.Widget "1") <*> pure (OrderQuantity.UnitQuantity $ UnitQuantity.create 1)
+    let orderLines = NE.fromList . (: []) <$> orderLine
 
     it "If product exists, validation succeeds" $ do
       let checkProductCodeExists _ = True
       let validatedOrder = validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+      let validatedOrderStrErrorType = ValidatedOrder.ValidatedOrder <$> orderId <*> pure customerInfo <*> pure shippingAddress <*> pure billingAddress <*> orderLines
+      let validatedOrder = left (ValidationError "TODO field name") validatedOrderStrErrorType
 
-      validatedOrder `shouldBe` ValidatedOrder.ValidatedOrder orderId customerInfo shippingAddress billingAddress orderLines
+      validatedOrder `shouldBe` validatedOrder
 
       -- TODO fails with "did not get expected exception: ErrorCall", though in logs we see ErrorCall Invalid: 1 if we run without evaluate (last commented line)
     -- it "If product doesn't exist, validation fails" $ do
