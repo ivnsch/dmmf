@@ -18,11 +18,25 @@ import Types.UnvalidatedCustomerInfo
 import Types.OrderLine as OrderLine
 import Types.UnvalidatedOrder
 import Types.UnvalidatedOrderLine
+import qualified Types.EmailAddress as EmailAddress
 import Types.String50 as String50
 import Control.Arrow(left)
+import Text.Printf
 
 main :: IO ()
-main = hspec $
+main = hspec $ do
+  describe "Email creation" $
+    it "Creates a valid email" $ do
+      let str = "foo@bar.com"
+      let email = EmailAddress.create str
+      EmailAddress.value email `shouldBe` str
+
+--    it "Throws error when email is invalid" $ do
+--      let str = "invalid"
+--      let email = EmailAddress.create str
+-- TODO error testing doesn't work, see TODO at the bottom
+--      evaluate email `shouldThrow` errorCall "invalid must match the pattern .+@.+"
+
   describe "Order validation" $ do
     let orderIdStr = "1"
     let orderLineIdStr = "1"
@@ -36,7 +50,7 @@ main = hspec $
     let checkAddressExists _ = Right $ CheckedAddress.CheckedAddress "a" "a" "a" "a" "a" "1"
     let unvalidatedOrder = UnvalidatedOrder orderIdStr unvalidatedCustomerInfo shippingUnvalidatedAddress unvalidatedOrderLines
 
-    let customerInfo = CustomerInfo.CustomerInfo (PersonalName.PersonalName (String50.create "a") (String50.create "a")) (EmailAddress "a")
+    let customerInfo = CustomerInfo.CustomerInfo (PersonalName.PersonalName (String50.create "a") (String50.create "a")) (EmailAddress.create "a@foo.com")
     let dummyStr = String50.create "a" :: String50
     let shippingAddress = Address.Address dummyStr (Just dummyStr) (Just dummyStr) (Just dummyStr) (City dummyStr) (ZipCode "1")
     let billingAddress = shippingAddress

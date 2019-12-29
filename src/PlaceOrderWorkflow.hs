@@ -28,8 +28,9 @@ import qualified Types.KilogramQuantity as KilogramQuantity
 import qualified Types.PricedOrderLine as POL
 import Types.Price as Price
 import Control.Arrow(left)
+import qualified Types.EmailAddress as EmailAddress
 
-type OrderPlaced = PO.PricedOrder 
+type OrderPlaced = PO.PricedOrder
 type PlaceOrder = Command UnvalidatedOrder.UnvalidatedOrder
 
 data BillableOrderPlaced = BillableOrderPlaced {
@@ -97,7 +98,7 @@ toCustomerInfo unvalidatedCustomerInfo =
   let 
     firstName = (String50.create . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
     lastName = (String50.create . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
-    emailAddress = (EmailAddress . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
+    emailAddress = (EmailAddress.create . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
     name = PersonalName.PersonalName firstName lastName
   in
     Right $ CustomerInfo.CustomerInfo name emailAddress

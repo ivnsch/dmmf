@@ -2,6 +2,7 @@ module SharedTypes where
 
 import Data.Time
 import Types.String50
+import Types.EmailAddress
 
 -- ===============================
 -- Simple types and constrained types related to the OrderTaking domain.
@@ -13,7 +14,6 @@ newtype ProductId = ProductId String deriving (Eq, Show)
 newtype CustomerId = CustomerId Int deriving (Show)
 newtype InvoiceId = InvoiceId Int deriving (Show)
 newtype ContactId = ContactId Int deriving (Show, Eq)
-newtype EmailAddress = EmailAddress String deriving (Eq, Show)
 newtype VerifiedEmailAddress = VerifiedEmailAddress String deriving (Show)
 newtype PhoneNumber = PhoneNumber String deriving (Show)
 newtype UnvalidatedAddress = UnvalidatedAddress String deriving Show
