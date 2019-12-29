@@ -6,6 +6,7 @@ module Types.OrderQuantity(
 import qualified Types.UnitQuantity as UnitQuantity
 import qualified Types.KilogramQuantity as KilogramQuantity
 
+-- A Quantity is either a Unit or a Kilogram
 data OrderQuantity = UnitQuantity UnitQuantity.UnitQuantity | 
   KilogramQuantity KilogramQuantity.KilogramQuantity deriving (Eq, Show)
 

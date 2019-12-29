@@ -1,3 +1,5 @@
+-- Constrained to be 50 chars or less, not null
+
 module Types.String50(
   String50, create, createOption, value
 ) where

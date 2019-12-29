@@ -2,6 +2,7 @@ module Types.UnitQuantity(
   UnitQuantity, create, value
 ) where
 
+-- Constrained to be a integer between 1 and 1000
 newtype UnitQuantity = UnitQuantity Int deriving (Eq, Show)
 
 create :: Int -> UnitQuantity

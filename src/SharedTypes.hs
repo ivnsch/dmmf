@@ -3,6 +3,12 @@ module SharedTypes where
 import Data.Time
 import Types.String50
 
+-- ===============================
+-- Simple types and constrained types related to the OrderTaking domain.
+--
+-- Note: In Haskell we need to put several in separate files/modules to avoid name clashes
+-- ===============================
+
 newtype ProductId = ProductId String deriving (Eq, Show)
 newtype CustomerId = CustomerId Int deriving (Show)
 newtype InvoiceId = InvoiceId Int deriving (Show)
@@ -18,6 +24,8 @@ newtype CheckedAddress = CheckedAddress UnvalidatedAddress deriving Show
 newtype HTMLString = HTMLString String deriving Show
 
 newtype City = City String50 deriving (Eq, Show)
+
+-- A zip code
 newtype ZipCode = ZipCode String deriving (Eq, Show)
 
 newtype EmailContactInfo = EmailContactInfo String deriving Show

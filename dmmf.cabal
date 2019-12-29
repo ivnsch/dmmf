@@ -57,6 +57,7 @@ library
       NonEmptyExt
       Types.DTO.OrderLineDto
       Types.DTO.OrderDto
+      Types.PdfAttachment
   other-modules:
       Paths_dmmf
   hs-source-dirs:
@@ -64,7 +65,8 @@ library
   build-depends:
       base >=4.7 && <5,
       time == 1.8.0.2,
-      aeson == 1.4.5.0
+      aeson == 1.4.5.0,
+      primitive == 0.6.4.0
   default-language: Haskell2010
 
 executable dmmf-exe
