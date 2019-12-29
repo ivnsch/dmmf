@@ -51,3 +51,6 @@ data ValidationError = ValidationError {
 newtype PricingError = PricingError String deriving (Eq, Show)
 newtype RemoteServiceError = RemoteServiceError String deriving (Eq, Show)
 data PlaceOrderError = Validation ValidationError | Pricing PricingError | RemoteService RemoteServiceError deriving (Eq, Show)
+
+-- NOTE (port): Not using the F# repo's ConstrainedType, since this doesn't seem idiomatic in Haskell.
+-- May be missing something but it seems an arbitrary constructor can be passed and this is not type safe.
