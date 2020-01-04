@@ -5,5 +5,5 @@ import Types.EmailAddress
 
 data OrderAcknowledgment = OrderAcknowledgment {
   emailAddress :: EmailAddress,
-  letter :: HTMLString
+  letter :: HtmlString
 }

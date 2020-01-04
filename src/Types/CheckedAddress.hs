@@ -1,12 +1,11 @@
-module Types.CheckedAddress where
+module Types.CheckedAddress(
+  CheckedAddress(CheckedAddress), address
+) where
   
 import SharedTypes
+import Types.Address
 
-data CheckedAddress = CheckedAddress {
-  addressLine1 :: String,
-  addressLine2 :: String,
-  addressLine3 :: String,
-  addressLine4 :: String,
-  city :: String,
-  zipCode :: String
-}
+newtype CheckedAddress = CheckedAddress Address deriving (Eq, Show)
+
+address :: CheckedAddress -> Address
+address (CheckedAddress address) = address

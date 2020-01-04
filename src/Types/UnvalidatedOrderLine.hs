@@ -10,7 +10,6 @@ import GHC.Generics
 
 data UnvalidatedOrderLine = UnvalidatedOrderLine {
   orderLineId :: String,
-  orderId :: String,
   productCode :: String,
   quantity :: Double
 } deriving (Show, Generic)

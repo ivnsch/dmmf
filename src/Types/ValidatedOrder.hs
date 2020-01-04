@@ -3,14 +3,14 @@ module Types.ValidatedOrder where
 import SharedTypes
 import Data.List.NonEmpty as NEL
 import Types.OrderLine
-import qualified Types.OrderId as OrderId
-import qualified Types.CustomerInfo as CustomerInfo
-import qualified Types.Address as Address
+import Types.OrderId
+import Types.CustomerInfo
+import Types.CheckedAddress
 
 data ValidatedOrder = ValidatedOrder {
-  orderId :: OrderId.OrderId,
-  customerInfo :: CustomerInfo.CustomerInfo,
-  shippingAddress :: Address.Address,
-  billingAddress :: Address.Address,
-  orderLines :: NonEmpty OrderLine
+  orderId :: OrderId,
+  customerInfo :: CustomerInfo,
+  shippingAddress :: CheckedAddress,
+  billingAddress :: CheckedAddress,
+  orderLines :: [OrderLine]
 } deriving (Eq, Show)

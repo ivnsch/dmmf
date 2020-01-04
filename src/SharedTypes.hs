@@ -16,12 +16,9 @@ newtype InvoiceId = InvoiceId Int deriving (Show)
 newtype ContactId = ContactId Int deriving (Show, Eq)
 newtype VerifiedEmailAddress = VerifiedEmailAddress String deriving (Show)
 newtype PhoneNumber = PhoneNumber String deriving (Show)
-newtype UnvalidatedAddress = UnvalidatedAddress String deriving Show
 newtype ValidatedAddress = ValidatedAddress String deriving Show
 
-newtype CheckedAddress = CheckedAddress UnvalidatedAddress deriving Show
-
-newtype HTMLString = HTMLString String deriving Show
+newtype HtmlString = HtmlString String deriving Show
 
 newtype City = City String50 deriving (Eq, Show)
 
@@ -30,6 +27,8 @@ newtype ZipCode = ZipCode String deriving (Eq, Show)
 
 newtype EmailContactInfo = EmailContactInfo String deriving Show
 newtype PostalContactInfo = PostalContactInfo String deriving Show
+
+type JsonString = String
 
 data CardType = Visa | Master deriving (Show)
 

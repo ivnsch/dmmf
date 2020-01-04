@@ -4,14 +4,13 @@ module OrderTakingDomain where
 import Types.OrderQuantity as OrderQuantity
 -- import qualified Data.List as L (find)
 import qualified Data.List as L
-import Prelude hiding (lines, map)
-import Data.List.NonEmpty as NEL
+import Prelude hiding (lines)
+--import Data.List.NonEmpty as NEL
 import qualified Types.PricedOrderLine as POL
 import qualified Types.PricedOrder as PO
 import qualified Types.OrderAcknowledgment as OrderAcknowledgment
 import qualified Types.OrderAcknowledgmentSent as OrderAcknowledgmentSent
 import SharedTypes
-import PlaceOrderWorkflow
 import qualified Types.UnvalidatedOrder as UnvalidatedOrder
 import qualified Types.ValidatedOrder as ValidatedOrder
 import qualified Types.OrderId as OrderId
@@ -103,15 +102,15 @@ toBillingAmount (Price value) = BillingAmount.BillingAmount value
 toPriceValue :: Price -> Double
 toPriceValue (Price value) = value
 
-calculateTotalPrice :: NonEmpty POL.PricedOrderLine -> Price
+calculateTotalPrice :: [POL.PricedOrderLine] -> Price
 calculateTotalPrice orderLines = 
   Price $ foldr (\l a -> toPriceValue (POL.price l) + a) 0 orderLines
 
-findOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId.OrderLineId -> Maybe POL.PricedOrderLine
+findOrderLine :: [POL.PricedOrderLine] -> OrderLineId.OrderLineId -> Maybe POL.PricedOrderLine
 findOrderLine orderLines olId =
   L.find (\ol -> POL.orderLineId ol == olId) orderLines 
 
-replaceOrderLine :: NonEmpty POL.PricedOrderLine -> OrderLineId.OrderLineId -> POL.PricedOrderLine -> NonEmpty POL.PricedOrderLine
+replaceOrderLine :: [POL.PricedOrderLine] -> OrderLineId.OrderLineId -> POL.PricedOrderLine -> [POL.PricedOrderLine]
 -- TODO optimize
 replaceOrderLine orderLines oldId newOrderLine = 
   map (\ol -> if POL.orderLineId ol == oldId then newOrderLine else ol) orderLines
@@ -134,7 +133,7 @@ changeOrderLinePrice order orderLineId newPrice =
     (\nols natb -> order { PO.orderLines = nols, PO.amountToBill = natb }) <$> newOrderLines <*> newAmountToBill
 
 -- Helper function to fix HLint repeated code warning 
-updateOrderLinesPrice :: PO.PricedOrder -> OrderLineId.OrderLineId -> Price -> Maybe (NonEmpty POL.PricedOrderLine)
+updateOrderLinesPrice :: PO.PricedOrder -> OrderLineId.OrderLineId -> Price -> Maybe [POL.PricedOrderLine]
 updateOrderLinesPrice order orderLineId newPrice = 
   let 
     orderLine = findOrderLine (PO.orderLines order) orderLineId
