@@ -1,10 +1,15 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Types.DTO.CustomerInfoDto where
 
 import qualified Types.UnvalidatedCustomerInfo as UnvalidatedCustomerInfo
 import GHC.Generics
 import Data.Aeson
+import qualified Types.String50 as String50
+import qualified Types.EmailAddress as EmailAddress
+import qualified Types.PersonalName as PersonalName
+import qualified Types.CustomerInfo as CustomerInfo
 
 -- ===============================================
 --  DTO for CustomerInfo
@@ -33,4 +38,34 @@ toUnvalidatedCustomerInfo dto =
     UnvalidatedCustomerInfo.firstName = firstName dto,
     UnvalidatedCustomerInfo.lastName = lastName dto,
     UnvalidatedCustomerInfo.emailAddress = emailAddress dto
+  }
+
+-- Convert the DTO into a CustomerInfo object
+-- Used when importing from the outside world into the domain, eg loading from a database
+toCustomerInfo :: CustomerInfoDto -> Either String CustomerInfo.CustomerInfo
+toCustomerInfo dto =
+  -- get each (validated) simple type from the DTO as a success or failure
+  let
+    first = String50.create "FirstName" $ firstName dto
+    last = String50.create "LastName" $ lastName dto
+    email = EmailAddress.create "EmailAddress" $ emailAddress dto :: Either String EmailAddress.EmailAddress
+    -- combine the components to create the domain object
+    -- (port) use functor instead?
+    name = (,) <$> first <*> last >>=
+      \case (f, l) -> Right PersonalName.PersonalName { PersonalName.firstName = f, PersonalName.lastName = l }
+    -- (port) use functor instead?
+    info = (,) <$> name <*> email >>=
+      \case (n, e) -> Right CustomerInfo.CustomerInfo { CustomerInfo.name = n, CustomerInfo.emailAddress = e }
+  in
+    info
+
+-- Convert a CustomerInfo object into the corresponding DTO.
+-- Used when exporting from the domain to the outside world.
+fromCustomerInfo :: CustomerInfo.CustomerInfo -> CustomerInfoDto
+fromCustomerInfo domainObj =
+    -- this is a simple 1:1 copy
+  CustomerInfoDto {
+    firstName = (String50.value . PersonalName.firstName . CustomerInfo.name) domainObj,
+    lastName = (String50.value . PersonalName.lastName . CustomerInfo.name) domainObj,
+    emailAddress = (EmailAddress.value . CustomerInfo.emailAddress) domainObj
   }

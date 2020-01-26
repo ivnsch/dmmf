@@ -14,8 +14,6 @@ import qualified Types.DTO.PlaceOrderErrorDto as PlaceOrderErrorDto
 import Data.Maybe (fromMaybe)
 import Data.ByteString.Lazy.Char8 as Char8 (pack, unpack)
 import qualified Types.OrderLine as OrderLine
---import qualified Data.List.NonEmpty as NE
---import qualified NonEmptyExt as NEE
 import Prelude hiding (lines, sequence)
 import SharedTypes
 import qualified Types.ValidatedOrder as ValidatedOrder
@@ -181,13 +179,13 @@ validateOrderAdapted checkProductCodeExists checkAddressExists unvalidatedOrder 
 
 toCustomerInfo :: UnvalidatedCustomerInfo.UnvalidatedCustomerInfo -> Either ValidationError CustomerInfo.CustomerInfo
 toCustomerInfo unvalidatedCustomerInfo =
-  let
-    firstName = (String50.create . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
-    lastName = (String50.create . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
-    emailAddress = (EmailAddress.create . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
-    name = PersonalName.PersonalName firstName lastName
-  in
-    Right $ CustomerInfo.CustomerInfo name emailAddress
+  -- TODO check which field names repo uses here
+  let firstName = (String50.create "firstName" . UnvalidatedCustomerInfo.firstName) unvalidatedCustomerInfo
+      lastName = (String50.create "lastName" . UnvalidatedCustomerInfo.lastName) unvalidatedCustomerInfo
+      emailAddress = (EmailAddress.create "emailAddress" . UnvalidatedCustomerInfo.emailAddress) unvalidatedCustomerInfo
+      name = PersonalName.PersonalName <$> firstName <*> lastName
+  -- TODO check how repo does this
+  in left (ValidationError "") $ CustomerInfo.CustomerInfo <$> name <*> emailAddress
 
 toAddress :: CheckAddressExists.CheckAddressExists -> Address.Address -> Either ValidationError CheckedAddress.CheckedAddress
 toAddress checkAddressExists = checkAddressExists
