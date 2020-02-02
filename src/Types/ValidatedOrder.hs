@@ -5,12 +5,12 @@ import Data.List.NonEmpty as NEL
 import Types.OrderLine
 import Types.OrderId
 import Types.CustomerInfo
-import Types.CheckedAddress
+import Types.Address
 
 data ValidatedOrder = ValidatedOrder {
   orderId :: OrderId,
   customerInfo :: CustomerInfo,
-  shippingAddress :: CheckedAddress,
-  billingAddress :: CheckedAddress,
+  shippingAddress :: Address,
+  billingAddress :: Address,
   orderLines :: [OrderLine]
 } deriving (Eq, Show)

@@ -7,13 +7,13 @@ import Types.OrderId
 import Types.CustomerInfo
 import Types.Address
 import Types.BillingAmount
-import Types.CheckedAddress
+import Types.Address
 
 data PricedOrder = PricedOrder {
   orderId :: OrderId,
   customerInfo :: CustomerInfo,
-  shippingAddress :: CheckedAddress,
-  billingAddress :: CheckedAddress,
+  shippingAddress :: Address,
+  billingAddress :: Address,
   orderLines :: [PricedOrderLine],
   amountToBill :: BillingAmount
 }

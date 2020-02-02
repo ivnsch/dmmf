@@ -71,10 +71,12 @@ library
       Types.DTO.PlaceOrderEventDto
       Types.PlaceOrderEvent
       Types.CheckAddressExists
+      Types.UnvalidatedAddress
       Types.DTO.AddressDto
       Types.DTO.CustomerInfoDto
       Types.DTO.OrderFormDto
       Types.DTO.OrderFormLineDto
+      Types.ZipCode
   other-modules:
       Paths_dmmf
   hs-source-dirs:

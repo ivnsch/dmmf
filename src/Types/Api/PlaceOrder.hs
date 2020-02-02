@@ -45,6 +45,8 @@ import qualified Types.PlaceOrderEvent as PlaceOrderEvent
 import qualified Types.PricedOrder as PO
 import qualified Types.CheckAddressExists as CheckAddressExists
 import qualified Data.ByteString.Lazy as L
+import qualified Types.UnvalidatedAddress as UnvalidatedAddress
+import qualified Types.ZipCode as ZipCode
 
 -- ======================================================
 -- This file contains the JSON API interface to the PlaceOrder workflow
@@ -167,8 +169,8 @@ validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder =
     orderId = (OrderId.create . UnvalidatedOrder.orderId) unvalidatedOrder
     orderIdWithLeftValidationError = left (ValidationError "OrderId") orderId -- TODO compare with repo
     customerInfo = (toCustomerInfo . UnvalidatedOrder.customerInfo) unvalidatedOrder
-    shippingAddress = (toAddress checkAddressExists . UnvalidatedOrder.shippingAddress) unvalidatedOrder
-    billingAddress = (toAddress checkAddressExists . UnvalidatedOrder.shippingAddress) unvalidatedOrder
+    shippingAddress = checkAddressExists (UnvalidatedOrder.shippingAddress unvalidatedOrder) >>= toAddress
+    billingAddress = checkAddressExists (UnvalidatedOrder.billingAddress unvalidatedOrder) >>= toAddress
     orderLines = (map (toValidatedOrderLine checkProductCodeExists) . UnvalidatedOrder.orderLines) unvalidatedOrder
   in
     ValidatedOrder.ValidatedOrder <$> orderIdWithLeftValidationError <*> customerInfo <*> shippingAddress <*> billingAddress <*> sequence orderLines
@@ -187,8 +189,18 @@ toCustomerInfo unvalidatedCustomerInfo =
   -- TODO check how repo does this
   in left (ValidationError "") $ CustomerInfo.CustomerInfo <$> name <*> emailAddress
 
-toAddress :: CheckAddressExists.CheckAddressExists -> Address.Address -> Either ValidationError CheckedAddress.CheckedAddress
-toAddress checkAddressExists = checkAddressExists
+toAddress :: CheckedAddress.CheckedAddress -> Either ValidationError Address.Address
+toAddress checkedAddress =
+  let
+    unvalidatedAddress = CheckedAddress.address checkedAddress
+    addressLine1 = left (ValidationError "") $ String50.create "addressLine1" $ UnvalidatedAddress.addressLine1 unvalidatedAddress
+    addressLine2 = left (ValidationError "") $ String50.createOption "addressLine2" $ UnvalidatedAddress.addressLine1 unvalidatedAddress
+    addressLine3 = left (ValidationError "") $ String50.createOption "addressLine3" $ UnvalidatedAddress.addressLine1 unvalidatedAddress
+    addressLine4 = left (ValidationError "") $ String50.createOption "addressLine4" $ UnvalidatedAddress.addressLine1 unvalidatedAddress
+    city = left (ValidationError "") $ String50.create "city" $ UnvalidatedAddress.city unvalidatedAddress
+    zipCode = left (ValidationError "") $ ZipCode.create "zipCode" $ UnvalidatedAddress.zipCode unvalidatedAddress
+  in
+    Address.Address <$> addressLine1 <*> addressLine2 <*> addressLine3 <*> addressLine4 <*> city <*> zipCode
 
 checkProductCodeExists :: CheckProductCodeExists.CheckProductCodeExists
 checkProductCodeExists productCode = undefined

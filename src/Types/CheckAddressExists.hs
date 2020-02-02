@@ -1,7 +1,7 @@
 module Types.CheckAddressExists where
 
-import qualified Types.Address as Address
+import qualified Types.UnvalidatedAddress as UnvalidatedAddress
 import qualified Types.CheckedAddress as CheckedAddress
 import SharedTypes
 
-type CheckAddressExists = Address.Address -> Either ValidationError CheckedAddress.CheckedAddress
+type CheckAddressExists = UnvalidatedAddress.UnvalidatedAddress -> Either ValidationError CheckedAddress.CheckedAddress

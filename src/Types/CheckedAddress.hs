@@ -3,9 +3,9 @@ module Types.CheckedAddress(
 ) where
   
 import SharedTypes
-import Types.Address
+import Types.UnvalidatedAddress
 
-newtype CheckedAddress = CheckedAddress Address deriving (Eq, Show)
+newtype CheckedAddress = CheckedAddress UnvalidatedAddress deriving (Eq, Show)
 
-address :: CheckedAddress -> Address
+address :: CheckedAddress -> UnvalidatedAddress
 address (CheckedAddress address) = address

@@ -1,16 +1,13 @@
-module Types.Address(
-  Address(Address), addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode
-) where
+module Types.Address where
   
-import SharedTypes
+import Types.ZipCode
 import Types.String50
 
--- TODO rename UnvalidatedAddress
 data Address = Address {
-  addressLine1 :: String,
-  addressLine2 :: String,
-  addressLine3 :: String,
-  addressLine4 :: String,
-  city :: String,
-  zipCode :: String
+  addressLine1 :: String50,
+  addressLine2 :: Maybe String50,
+  addressLine3 :: Maybe String50,
+  addressLine4 :: Maybe String50,
+  city :: String50,
+  zipCode :: ZipCode
 } deriving (Eq, Show)

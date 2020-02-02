@@ -1,11 +1,11 @@
 module Types.BillableOrderPlaced where
 
 import Types.OrderId
-import Types.CheckedAddress
+import Types.Address
 import Types.BillingAmount
 
 data BillableOrderPlaced = BillableOrderPlaced {
   orderId :: OrderId,
-  billingAddress :: CheckedAddress,
+  billingAddress :: Address,
   amountToBill :: BillingAmount
 }
