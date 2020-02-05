@@ -2,9 +2,6 @@
 
 module Types.UnvalidatedOrderLine where
 
-import SharedTypes
-import qualified Types.OrderId as OrderId
-import qualified Types.CustomerInfo as CustomerInfo
 import Data.Aeson
 import GHC.Generics
 

@@ -104,7 +104,7 @@ toPriceValue (Price value) = value
 
 calculateTotalPrice :: [POL.PricedOrderLine] -> Price
 calculateTotalPrice orderLines = 
-  Price $ foldr (\l a -> toPriceValue (POL.price l) + a) 0 orderLines
+  Price $ foldr (\l a -> toPriceValue (POL.linePrice l) + a) 0 orderLines
 
 findOrderLine :: [POL.PricedOrderLine] -> OrderLineId.OrderLineId -> Maybe POL.PricedOrderLine
 findOrderLine orderLines olId =
@@ -137,7 +137,7 @@ updateOrderLinesPrice :: PO.PricedOrder -> OrderLineId.OrderLineId -> Price -> M
 updateOrderLinesPrice order orderLineId newPrice = 
   let 
     orderLine = findOrderLine (PO.orderLines order) orderLineId
-    newOrderLine = (\ol -> ol { POL.price = newPrice }) <$> orderLine
+    newOrderLine = (\ol -> ol { POL.linePrice = newPrice }) <$> orderLine
   in
     replaceOrderLine (PO.orderLines order) orderLineId <$> newOrderLine 
 

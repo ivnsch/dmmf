@@ -9,8 +9,7 @@ import Types.OrderQuantity
 
 data PricedOrderLine = PricedOrderLine {
   orderLineId :: OrderLineId,
-  orderId :: OrderId,
   productCode :: ProductCode,
-  orderQuantity :: OrderQuantity,
-  price :: Price
+  quantity :: OrderQuantity,
+  linePrice :: Price
 } deriving (Show)

@@ -209,7 +209,7 @@ priceOrder :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either Pricing
 priceOrder getProductPrice validatedOrder =
   let
     lines = (map (toPricedOrderLine getProductPrice) . ValidatedOrder.orderLines) validatedOrder
-    sumPrice = (sumPrices . map POL.price) lines
+    sumPrice = (sumPrices . map POL.linePrice) lines
     amountToBill = BillingAmount.BillingAmount $ case sumPrice of Price value -> value
   in
     Right $ PO.PricedOrder
@@ -233,7 +233,6 @@ toPricedOrderLine getProductPrice line =
   in
     POL.PricedOrderLine
       (OrderLine.orderLineId line)
-      (OrderLine.orderId line)
       (OrderLine.productCode line)
       (OrderLine.quantity line)
       linePrice

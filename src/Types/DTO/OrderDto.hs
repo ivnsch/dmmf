@@ -1,8 +1,8 @@
 module Types.DTO.OrderDto where
 
-import Types.DTO.OrderLineDto
+import Types.DTO.OrderFormLineDto
 
 data OrderDto = OrderDto {
   orderId :: String,
-  orderLines :: [OrderLineDto]
+  orderLines :: [OrderFormLineDto]
 } deriving (Eq, Show)

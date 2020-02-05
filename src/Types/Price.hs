@@ -1,5 +1,5 @@
 module Types.Price(
-  Price(Price), unsafeCreate, multiply
+  Price(Price), unsafeCreate, multiply, value
 ) where
 
 -- Constrained to be a decimal between 0.0 and 1000.00 
@@ -14,3 +14,6 @@ unsafeCreate value | value > 0 && value < 1000 = Price value
 multiply :: Double -> Price -> Price
 multiply qty (Price p) = 
   unsafeCreate $ qty * p
+
+value :: Price -> Double
+value (Price value) = value
