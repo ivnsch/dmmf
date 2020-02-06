@@ -1,4 +1,6 @@
-module Types.DTO.OrderLineDto where
+{-# LANGUAGE DeriveGeneric #-}
+
+module Types.DTO.PricedOrderLineDto where
 
 import qualified Types.UnvalidatedOrderLine as UnvalidatedOrderLine
 import qualified Types.PricedOrderLine as PricedOrderLine
@@ -6,6 +8,8 @@ import qualified Types.OrderLineId as OrderLineId
 import qualified Types.ProductCode as ProductCode
 import qualified Types.OrderQuantity as OrderQuantity
 import qualified Types.Price as Price
+import GHC.Generics
+import Data.Aeson
 
 -- ===============================================
 --  DTO for PricedOrderLines
@@ -17,7 +21,10 @@ data PricedOrderLineDto = PricedOrderLineDto {
   productCode :: String,
   quantity :: Double,
   linePrice :: Double
-} deriving (Eq, Show)
+} deriving (Eq, Show, Generic)
+
+instance FromJSON PricedOrderLineDto
+instance ToJSON PricedOrderLineDto
 
 -- Convert a PricedOrderLine object into the corresponding DTO.
 -- Used when exporting from the domain to the outside world.

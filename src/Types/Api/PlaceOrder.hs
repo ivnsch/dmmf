@@ -217,8 +217,8 @@ priceOrder getProductPrice validatedOrder =
       (ValidatedOrder.customerInfo validatedOrder)
       (ValidatedOrder.shippingAddress validatedOrder)
       (ValidatedOrder.billingAddress validatedOrder)
-      lines
       amountToBill
+      lines
 
 priceOrderAdapted :: GetProductPrice -> ValidatedOrder.ValidatedOrder -> Either PlaceOrderError PO.PricedOrder
 priceOrderAdapted getProductPrice validatedOrder =

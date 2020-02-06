@@ -120,7 +120,7 @@ changeOrderPrice order orderLineId newPrice =
   let 
     newOrderLines = updateOrderLinesPrice order orderLineId newPrice
   in 
-    (\nols -> order { PO.orderLines = nols }) <$> newOrderLines
+    (\nols -> order { PO.lines = nols }) <$> newOrderLines
     
 -- This was added after adding amountToBill to Order. changeOrderPrice is "deprecated" now.
 changeOrderLinePrice :: PO.PricedOrder -> OrderLineId.OrderLineId -> Price -> Maybe PO.PricedOrder
@@ -130,16 +130,16 @@ changeOrderLinePrice order orderLineId newPrice =
     newTotalPrice = calculateTotalPrice <$> newOrderLines
     newAmountToBill = BillingAmount.BillingAmount . toPriceValue <$> newTotalPrice
   in 
-    (\nols natb -> order { PO.orderLines = nols, PO.amountToBill = natb }) <$> newOrderLines <*> newAmountToBill
+    (\nols natb -> order { PO.lines = nols, PO.amountToBill = natb }) <$> newOrderLines <*> newAmountToBill
 
 -- Helper function to fix HLint repeated code warning 
 updateOrderLinesPrice :: PO.PricedOrder -> OrderLineId.OrderLineId -> Price -> Maybe [POL.PricedOrderLine]
 updateOrderLinesPrice order orderLineId newPrice = 
   let 
-    orderLine = findOrderLine (PO.orderLines order) orderLineId
+    orderLine = findOrderLine (PO.lines order) orderLineId
     newOrderLine = (\ol -> ol { POL.linePrice = newPrice }) <$> orderLine
   in
-    replaceOrderLine (PO.orderLines order) orderLineId <$> newOrderLine 
+    replaceOrderLine (PO.lines order) orderLineId <$> newOrderLine
 
     
 -- TODO is pipe operator (F#'s |>) idiomatic in Haskell? 

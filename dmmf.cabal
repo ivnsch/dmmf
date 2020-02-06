@@ -76,7 +76,11 @@ library
       Types.DTO.CustomerInfoDto
       Types.DTO.OrderFormDto
       Types.DTO.OrderFormLineDto
+      Types.DTO.OrderPlacedDto
       Types.ZipCode
+      Types.DTO.PricedOrderLineDto
+      Types.DTO.BillableOrderPlacedDto
+      Types.DTO.OrderAcknowledgmentSentDto
   other-modules:
       Paths_dmmf
   hs-source-dirs:

@@ -14,6 +14,6 @@ data PricedOrder = PricedOrder {
   customerInfo :: CustomerInfo,
   shippingAddress :: Address,
   billingAddress :: Address,
-  orderLines :: [PricedOrderLine],
-  amountToBill :: BillingAmount
+  amountToBill :: BillingAmount,
+  lines :: [PricedOrderLine]
 }
